@@ -29,7 +29,7 @@ class GlobalSettings(BaseSettings):
     DATABASE_URI: PostgresDsn = "postgresql+psycopg2://ess:ess@localhost:5442/ess"
     MAX_RESULTS_BY_PAGE: int = 50
     SHOW_BETA_COLLECTIONS: bool = False
-    SHOW_KNOWLEDGE_BASE: bool = True
+    SHOW_KNOWLEDGE_BASE: bool = False
 
     # Services
     # - Solr
@@ -87,7 +87,7 @@ class GlobalSettings(BaseSettings):
     EU_MARKETPLACE_BASE_URL: Url = "https://userspace.sandbox.eosc-beyond.eu/"
     PL_MARKETPLACE_BASE_URL: Url = "https://marketplace.eosc.pl/"
     EOSC_COMMONS_URL: Url = (  # Without / at the end it doesn't work
-        "https://s3.cloud.cyfronet.pl/eosc-pl-common/"
+        "https://s3.cloud.cyfronet.pl/sage-common/"
     )
     EOSC_COMMONS_ENV: str = "beta"
     EOSC_EXPLORE_URL: Url = "https://explore.sandbox.eosc-beyond.eu/"
