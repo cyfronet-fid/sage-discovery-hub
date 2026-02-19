@@ -27,9 +27,9 @@ import { NavConfigsRepository } from '@collections/repositories/nav-configs.repo
         <option value="default" i18n>Best match</option>
         <option value="dmr" i18n>Date - Most recent</option>
         <option value="dlr" i18n>Date – Least recent</option>
-        <option [hidden]="disableSortByPopularity$() | async" value="mp" i18n>
-          Downloads & Views
-        </option>
+<!--        <option [hidden]="disableSortByPopularity$() | async" value="mp" i18n>-->
+<!--          Downloads & Views-->
+<!--        </option>-->
         <option [hidden]="disableSortByRelevance$() | async" value="r" i18n>
           Recommended
         </option>

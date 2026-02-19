@@ -34,7 +34,7 @@ class GlobalSettings(BaseSettings):
     # Services
     # - Solr
     SOLR_URL: Url = "http://localhost:8983/solr/"
-    COLLECTIONS_PREFIX: str = ""
+    COLLECTIONS_PREFIX: str = "sage_"
 
     # - Recommender System
     RS_URL: Url = "http://localhost:9080/"

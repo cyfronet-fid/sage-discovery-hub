@@ -300,13 +300,6 @@
         [hasDOIUrl]="hasDOIUrl"
         [exportData]="exportData"
       ></ess-bibliography>
-      <ess-pin
-        *ngIf="RESOURCES_TO_SHOW_PIN_TO.includes(type.value)"
-        [resourceType]="type.value"
-        [resourceId]="id"
-        style="border-right: none !important"
-        class="bottom-action-link"
-      ></ess-pin>
       <div *ngIf="collection === 'provider' || collection === 'organisation' || collection === 'catalogue' || type.value === 'data-source'">
         <ess-related-resources
           [pid]="this.pid ?? ''"

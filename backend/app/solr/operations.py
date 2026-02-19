@@ -331,6 +331,6 @@ def get_dep():
 
 
 def _get_solr_collection(collection: Collection, scope: Optional[str] = None):
-    prefix_mapping = {"pl": "pl_", "eu": "", "": ""}
+    prefix_mapping = {"pl": "sage_", "eu": "", "": ""}
     actual_prefix = prefix_mapping.get(scope, settings.COLLECTIONS_PREFIX)
     return f"{actual_prefix}{collection}"
