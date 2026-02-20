@@ -22,7 +22,7 @@ const MAX_CHARS_LENGTH = 256;
   styles: [
     `
       ::ng-deep .highlighted {
-        background-color: #e8e7ff !important;
+        background-color: #f2f1e8 !important;
         padding: 0px;
       }
     `,

@@ -58,7 +58,7 @@ import { NavConfigsRepository } from '@collections/repositories/nav-configs.repo
       label {
         display: inline-block;
         width: 100px;
-        font-family: 'Inter';
+        font-family: 'Roboto';
         font-style: normal;
         font-weight: 400;
         font-size: 14px;
@@ -68,7 +68,7 @@ import { NavConfigsRepository } from '@collections/repositories/nav-configs.repo
 
       select {
         display: inline-block;
-        font-family: 'Inter';
+        font-family: 'Roboto';
         font-style: normal;
         font-weight: 500;
         font-size: 14px;
