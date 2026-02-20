@@ -1,19 +1,22 @@
 <div id="tags">
   <ng-container
-    *ngFor="let tag of parsedTags; let i = index; trackBy: trackByLabel"
+    *ngFor="let tag of parsedTags; let tagIndex = index; trackBy: trackByLabel"
   >
     <div class="tag-row" *ngIf="tag.values.length > 0">
       <div class="tag tag-title">{{ tag.label }}:</div>
 
       <div class="tag-content">
-        <ng-container *ngFor="let singleValue of computeTagEntries(tag)">
+        <ng-container
+          *ngFor="let singleValue of computeTagEntries(tag); let valueIndex = index"
+        >
           <span class="tag">
             <a
               *ngIf="!singleValue.externalLink && tag.label === 'Provider'"
               href="javascript:void(0)"
               (click)="setActiveFilter(tag.filter, singleValue.value)"
-              >{{ providerName }}</a
             >
+              {{ getDisplayLabel(tag, singleValue, valueIndex) }}
+            </a>
             <a
               *ngIf="!singleValue.externalLink && tag.label !== 'Provider'"
               href="javascript:void(0)"
@@ -21,21 +24,32 @@
               [innerHTML]="
                 (addSubTitle(singleValue.subTitle) ?? '') +
                 ' ' +
-                (singleValue.label | filterPipe: tag.filter)
+                getDisplayLabel(tag, singleValue, valueIndex)
               "
             ></a>
             <a
               *ngIf="singleValue.externalLink"
               [href]="singleValue.externalLink.link ?? '#'"
-              (click)="
-                _onClickExternalLink($event, singleValue.externalLink.link)
-              "
+              (click)="_onClickExternalLink($event, singleValue.externalLink.link)"
               [innerHTML]="
                 (addSubTitle(singleValue.subTitle) ?? '') +
                 ' ' +
-                singleValue.label
+                getDisplayLabel(tag, singleValue, valueIndex)
               "
             ></a>
+
+            <button
+              *ngIf="shouldShowValueToggle(singleValue)"
+              class="show-more-btn"
+              type="button"
+              (click)="toggleExpandValue(tag.label, valueIndex)"
+            >
+              {{
+                expandedValues[tag.label]?.[valueIndex]
+                  ? 'Show less'
+                  : 'Show more'
+              }}
+            </button>
           </span>
         </ng-container>
         <span

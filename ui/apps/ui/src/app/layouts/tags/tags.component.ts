@@ -49,6 +49,19 @@ import { DICTIONARY_TYPE_FOR_PIPE } from '../../dictionary/dictionaryType';
         color: #000000;
         cursor: pointer;
       }
+
+      .show-more-btn {
+        padding-left: 4px;
+        border: none;
+        background: none;
+        font-size: 12px;
+        color: #99ca3c;
+        cursor: pointer;
+      }
+
+      .show-more-btn:hover {
+        text-decoration: underline;
+      }
     `,
   ],
 })
@@ -56,16 +69,18 @@ export class TagsComponent implements OnChanges {
   parsedTags: ITag[] = [];
   showMoreStatePerTag: { [tagLabel: string]: boolean } = {};
 
-  @Input()
-  tags: ITag[] = [];
-  @Input()
-  providerName?: string[] = [];
+  // NEW: per-value expansion (long publisher labels)
+  expandedValues: Record<string, Record<number, boolean>> = {};
 
-  @Input()
-  highlights: { [field: string]: string[] | undefined } = {};
+  @Input() tags: ITag[] = [];
+  @Input() providerName?: string[] = [];
+  @Input() highlights: { [field: string]: string[] | undefined } = {};
 
-  @Output()
-  activeFilter = new EventEmitter<{ filter: string; value: string }>();
+  @Output() activeFilter = new EventEmitter<{
+    filter: string;
+    value: string;
+  }>();
+
   trackByLabel: TrackByFunction<ITag> = (index: number, entity: ITag) =>
     entity.label;
 
@@ -74,9 +89,15 @@ export class TagsComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes['tags'] || changes['highlights']) {
       this.parsedTags = combineHighlightsWith(this.tags, this.highlights);
+
       this.showMoreStatePerTag = Object.fromEntries(
         this.parsedTags.map((tag) => [tag.label, false])
       );
+
+      this.expandedValues = {};
+      for (const tag of this.parsedTags) {
+        this.expandedValues[tag.label] = {};
+      }
     }
   }
 
@@ -88,36 +109,31 @@ export class TagsComponent implements OnChanges {
   cleanDuplicatedTagLabel(
     array: IValueWithLabelAndLink[]
   ): IValueWithLabelAndLink[] {
-    if (array[array.length - 1].value.indexOf('>') !== -1) {
+    if (array[array.length - 1]?.value.indexOf('>') !== -1) {
       array.reverse();
     }
-    const a = array.reduce(
+
+    const cleaned = array.reduce(
       (accumulator: IValueWithLabel[], current: IValueWithLabel) => {
-        if (
-          !accumulator.find(
-            (item) =>
-              translateDictionaryValue(
-                DICTIONARY_TYPE_FOR_PIPE.TYPE_SCIENTIFIC_DOMAINS,
-                item.label
-              ).toString() ===
-              translateDictionaryValue(
-                DICTIONARY_TYPE_FOR_PIPE.TYPE_SCIENTIFIC_DOMAINS,
-                current.label
-              ).toString()
-          )
-        ) {
-          accumulator.push(current);
-        }
+        const exists = accumulator.find(
+          (item) =>
+            translateDictionaryValue(
+              DICTIONARY_TYPE_FOR_PIPE.TYPE_SCIENTIFIC_DOMAINS,
+              item.label
+            ).toString() ===
+            translateDictionaryValue(
+              DICTIONARY_TYPE_FOR_PIPE.TYPE_SCIENTIFIC_DOMAINS,
+              current.label
+            ).toString()
+        );
+        if (!exists) accumulator.push(current);
         return accumulator;
       },
       []
     );
-    return a;
-  }
 
-  // cleanComas(array: IValueWithLabelAndLink[]): IValueWithLabelAndLink[] {
-  //   return array.map((val) => val.label.slice(-1) === ',');
-  // }
+    return cleaned;
+  }
 
   addSubTitle(subTitle?: string) {
     return subTitle ? `${subTitle}: ` : undefined;
@@ -132,19 +148,43 @@ export class TagsComponent implements OnChanges {
   }
 
   computeTagEntries(tag: ITag): IValueWithLabelAndLink[] {
-    if (this.showMoreStatePerTag[tag.label] || !tag.showMoreThreshold)
-      return this.cleanDuplicatedTagLabel(tag.values);
+    const cleaned = this.cleanDuplicatedTagLabel(tag.values);
 
-    return this.cleanDuplicatedTagLabel(tag.values).slice(
-      0,
-      tag.showMoreThreshold
-    );
+    if (this.showMoreStatePerTag[tag.label] || !tag.showMoreThreshold) {
+      return cleaned;
+    }
+
+    return cleaned.slice(0, tag.showMoreThreshold);
   }
 
   createShowMoreLabel(tag: ITag): string {
     return this.showMoreStatePerTag[tag.label]
       ? 'Show less'
-      : // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        `+ ${tag.values.length - tag.showMoreThreshold!}`;
+      : `+ ${tag.values.length - (tag.showMoreThreshold ?? 0)}`;
+  }
+
+  toggleExpandValue(tagLabel: string, index: number) {
+    this.expandedValues[tagLabel][index] =
+      !this.expandedValues[tagLabel][index];
+  }
+
+  getDisplayLabel(
+    tag: ITag,
+    value: IValueWithLabelAndLink,
+    index: number
+  ): string {
+    const MAX_LENGTH = 40; // or make configurable per tag later
+
+    const isExpanded = this.expandedValues[tag.label]?.[index] ?? false;
+
+    if (value.label.length <= MAX_LENGTH || isExpanded) {
+      return value.label;
+    }
+
+    return value.label.slice(0, MAX_LENGTH) + '…';
+  }
+
+  shouldShowValueToggle(val: IValueWithLabelAndLink): boolean {
+    return val.label.length > 40;
   }
 }

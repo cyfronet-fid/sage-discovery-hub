@@ -225,6 +225,7 @@ export const allCollectionsAdapter: IAdapter = {
         label: 'Publisher',
         values: toValueWithLabel(toArray(data?.publisher)),
         filter: 'publisher',
+        showMoreThreshold: 10,
       },
     ],
     type: {
