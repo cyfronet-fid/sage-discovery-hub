@@ -1,6 +1,6 @@
 {
   "/api/*": {
-    "target": "https://eosc.pl",
+    "target": "https://beta.catalogue.gdds.eu",
     "secure": true,
     "changeOrigin": true,
     "logLevel": "debug"

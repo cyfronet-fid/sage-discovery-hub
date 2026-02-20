@@ -2,11 +2,7 @@ import { IAdapter, IResult } from '../../repositories/types';
 import { URL_PARAM_NAME } from './nav-config.data';
 import { COLLECTION } from './search-metadata.data';
 import { IOpenAIREResult } from '@collections/data/openair.model';
-import {
-  constructIdentifierTag,
-  formatPublicationDate,
-  toInterPatternsSecondaryTag,
-} from '@collections/data/utils';
+import { formatPublicationDate } from '@collections/data/utils';
 import { IDataSource } from '@collections/data/data-sources/data-source.model';
 import { ITraining } from '@collections/data/trainings/training.model';
 import { IGuideline } from '@collections/data/guidelines/guideline.model';
@@ -17,7 +13,6 @@ import {
 } from '@collections/filters-serializers/utils';
 import {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  toBetaTag,
   transformLanguages,
 } from '@collections/data/shared-tags';
 import {
@@ -145,13 +140,6 @@ export const orderUrlAdapter = (
   }
 };
 
-const forInteroperabilityGuidelinesValueAdapter = (value: string = '') => {
-  const valueToLowerCase = value.toLowerCase();
-  return valueToLowerCase.indexOf('interoperability') !== -1
-    ? 'guideline'
-    : value;
-};
-
 const extractDate = (
   data: Partial<
     IOpenAIREResult &
@@ -220,81 +208,27 @@ export const allCollectionsAdapter: IAdapter = {
     id: data.id,
     title: data?.title?.join(' ') || '',
     description: data?.description?.join(' ') || '',
-    documentType: data?.document_type,
     date: extractDate(data),
     languages: transformLanguages(data?.language),
     redirectUrl: redirectUrlAdapter(data.type || '', data),
     logoUrl: logoUrlAdapter(data.type || '', data),
     orderUrl: orderUrlAdapter(data.type || '', data),
-    exportData: data.exportation || [],
     urls: data.url,
-    horizontal: data?.horizontal,
     license: data?.license,
-    funder: data?.funder,
     coloredTags: [],
-    relatedOrganisations: data?.related_organisation_titles || [],
-    tags:
-      data.type === 'bundle'
-        ? []
-        : [
-            {
-              label: 'Author',
-              values: toValueWithLabel(toArray(data?.author_names)),
-              filter: 'author_names',
-              showMoreThreshold: 10,
-            },
-            {
-              label: 'EOSC Node',
-              values: toValueWithLabel(toArray(data?.node)),
-              filter: 'node',
-              showMoreThreshold: 4,
-            },
-            {
-              label: 'Publisher',
-              values: toValueWithLabel(toArray(data?.publisher)),
-              filter: 'publisher',
-            },
-            {
-              label: 'Organisation',
-              values: toValueWithLabel(toArray(data?.resource_organisation)),
-              filter: 'resource_organisation',
-            },
-            {
-              label: 'Identifier',
-              values: constructIdentifierTag(data?.pids),
-              filter: 'pids',
-              showMoreThreshold: 4,
-            },
-            {
-              label: 'Scientific domain',
-              values: toValueWithLabel(toArray(data?.scientific_domains)),
-              filter: 'scientific_domains',
-            },
-            {
-              label: 'Interoperability guideline',
-              values: toValueWithLabel(toArray(data.guidelines)),
-              filter: 'guidelines_str',
-            },
-            {
-              label: 'Related organisations',
-              values: toValueWithLabel(
-                toArray(data?.related_organisation_titles)
-              ),
-              filter: 'related_organisation_titles',
-            },
-          ],
+    tags: [
+      {
+        label: 'Publisher',
+        values: toValueWithLabel(toArray(data?.publisher)),
+        filter: 'publisher',
+      },
+    ],
     type: {
-      label: data.type === 'bundle' ? 'bundles' : data.type || '',
-      value: forInteroperabilityGuidelinesValueAdapter(data.type)?.replace(
-        / +/gm,
-        '-'
-      ),
+      label: data.type || '',
+      value: data.type || '',
     },
     collection: COLLECTION,
-    secondaryTags: [
-      toInterPatternsSecondaryTag(data.eosc_if ?? [], 'eosc_if'),
-      toKeywordsSecondaryTag(data.keywords ?? [], 'keywords'),
-    ],
+    secondaryTags: [toKeywordsSecondaryTag(data.keywords ?? [], 'keywords')],
     offers: data.offers ?? [],
     ...parseStatistics(data),
   }),
