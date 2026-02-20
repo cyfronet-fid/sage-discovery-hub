@@ -6,7 +6,6 @@ import { NavConfigsRepository } from '@collections/repositories/nav-configs.repo
   selector: 'ess-collections-navigation',
   template: `
     <div class="container--xxl navigation">
-
       <!-- Search Info -->
       <div class="results-info" *ngIf="q$ | async as query">
         <ng-container *ngIf="query && query !== '*'">
@@ -31,10 +30,7 @@ import { NavConfigsRepository } from '@collections/repositories/nav-configs.repo
               [class.active]="last"
               [attr.aria-current]="last ? 'page' : null"
             >
-              <a
-                *ngIf="!last && breadcrumb.url"
-                [routerLink]="breadcrumb.url"
-              >
+              <a *ngIf="!last && breadcrumb.url" [routerLink]="breadcrumb.url">
                 {{ breadcrumb.label }}
               </a>
 
@@ -43,11 +39,7 @@ import { NavConfigsRepository } from '@collections/repositories/nav-configs.repo
               </span>
             </li>
 
-            <li
-              class="breadcrumb-separator"
-              aria-hidden="true"
-              *ngIf="!last"
-            >
+            <li class="breadcrumb-separator" aria-hidden="true" *ngIf="!last">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -64,7 +56,6 @@ import { NavConfigsRepository } from '@collections/repositories/nav-configs.repo
           </ng-container>
         </ol>
       </nav>
-
     </div>
   `,
 })

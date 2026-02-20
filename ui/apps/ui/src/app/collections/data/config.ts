@@ -5,8 +5,7 @@ export const DATE_FORMAT = 'DD MMMM YYYY';
 export const DEFAULT_FACET: { [field: string]: ITermsFacetParam } = {
   title: { field: 'title', type: 'terms', limit: 0 },
 };
-export const DEFAULT_QF =
-  'title^100 description^10 keywords_tg^10';
+export const DEFAULT_QF = 'title^100 description^10 keywords_tg^10';
 
 export const PROVIDER_QF =
   'title^100 abbreviation^100 description^10 scientific_domains^10';
