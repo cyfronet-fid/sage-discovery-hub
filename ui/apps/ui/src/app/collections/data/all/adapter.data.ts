@@ -215,6 +215,10 @@ export const allCollectionsAdapter: IAdapter = {
     orderUrl: orderUrlAdapter(data.type || '', data),
     urls: data.url,
     license: data?.license,
+    version: data?.version,
+    contentType: data?.content_type,
+    granularity: data?.granularity,
+    dataQuality: data?.data_quality,
     coloredTags: [],
     tags: [
       {

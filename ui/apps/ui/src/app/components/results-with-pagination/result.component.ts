@@ -108,6 +108,12 @@ export class ResultComponent implements OnInit {
   downloads?: number;
 
   @Input()
+  version?: string;
+
+  @Input()
+  dataQuality?: string;
+
+  @Input()
   views?: number;
 
   @Input()
