@@ -55,12 +55,12 @@ const DEFAULT_NO_OF_RESULTS = 2000;
   styles: [
     `
       .download-button {
-        font-family: 'Inter', serif;
+        font-family: 'Roboto', serif;
         font-style: normal;
         font-weight: 500;
         font-size: 16px;
         line-height: 20px;
-        color: #257b85;
+        color: #99ca3c;
 
         display: inline-block;
         cursor: pointer;

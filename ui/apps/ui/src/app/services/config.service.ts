@@ -68,7 +68,7 @@ export class ConfigService {
             'stylesheet'
           ),
           this._loadAsset(
-            'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap',
+            'https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap',
             'stylesheet'
           ),
         ])

@@ -67,15 +67,14 @@ import { IFqMap } from '@collections/services/custom-route.type';
         padding: 10px;
         gap: 7px;
         width: 100%;
-        background: #e4f9fa;
         border-radius: 8px;
         margin-bottom: 10px;
       }
 
       .data-source-title {
         font-weight: 600;
-        font-size: 14px;
-        color: #000;
+        font-size: 15px;
+        color: #34503e;
       }
 
       .tooltip-prompt-icon {
