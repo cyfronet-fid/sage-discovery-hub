@@ -28,6 +28,9 @@ export interface IOpenAIREResult {
   affiliation: string[];
   funder: string[];
   node: string;
+  version: string;
+  granularity: string;
+  data_quality: string;
 }
 
 export interface InstanceExportData {
