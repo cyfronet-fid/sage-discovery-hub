@@ -5,15 +5,15 @@ import { alphanumericFilterSort } from '@collections/data/utils';
 export const allCollectionsFilters: IFiltersConfig = {
   id: URL_PARAM_NAME,
   filters: [
-    {
-      id: 'catalogue',
-      filter: 'catalogue',
-      label: 'Catalogue',
-      type: 'multiselect',
-      defaultCollapsed: false,
-      tooltipText: '',
-      expandArrow: true,
-    },
+    // {
+    //   id: 'catalogue',
+    //   filter: 'catalogue',
+    //   label: 'Catalogue',
+    //   type: 'multiselect',
+    //   defaultCollapsed: false,
+    //   tooltipText: '',
+    //   expandArrow: true,
+    // },
     {
       id: 'type',
       filter: 'type',
