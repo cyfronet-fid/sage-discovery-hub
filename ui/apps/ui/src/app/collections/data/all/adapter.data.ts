@@ -207,6 +207,7 @@ export const allCollectionsAdapter: IAdapter = {
     isResearchProduct: setIsResearchProduct(data),
     id: data.id,
     title: data?.title?.join(' ') || '',
+    catalogue: data?.catalogue || '',
     description: data?.description?.join(' ') || '',
     date: extractDate(data),
     languages: transformLanguages(data?.language),
