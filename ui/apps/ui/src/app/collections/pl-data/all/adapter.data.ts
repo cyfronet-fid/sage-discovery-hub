@@ -31,7 +31,10 @@ const plRedirectUrlAdapter = (
 ) => {
   switch (type) {
     case 'dataset':
-      return data?.url?.[0] || '';
+      return (
+        'https://sage-dashboard-edc-connector.apps.bst2.paas.psnc.pl/browse-catalog' ||
+        ''
+      );
 
     case 'service':
       return data?.slug
