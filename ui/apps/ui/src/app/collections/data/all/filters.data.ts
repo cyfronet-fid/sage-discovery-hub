@@ -6,11 +6,20 @@ export const allCollectionsFilters: IFiltersConfig = {
   id: URL_PARAM_NAME,
   filters: [
     {
+      id: 'catalogue',
+      filter: 'catalogue',
+      label: 'Catalogue',
+      type: 'multiselect',
+      defaultCollapsed: false,
+      tooltipText: '',
+      expandArrow: true,
+    },
+    {
       id: 'type',
       filter: 'type',
       label: 'Type of research product',
       type: 'multiselect',
-      defaultCollapsed: false,
+      defaultCollapsed: true,
       tooltipText: '',
       expandArrow: true,
     },

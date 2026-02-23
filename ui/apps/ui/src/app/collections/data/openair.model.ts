@@ -31,6 +31,7 @@ export interface IOpenAIREResult {
   version: string;
   granularity: string;
   data_quality: string;
+  catalogue: string;
 }
 
 export interface InstanceExportData {

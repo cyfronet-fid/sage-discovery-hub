@@ -67,6 +67,7 @@ export interface IResult {
   contentType?: string;
   granularity?: string;
   dataQuality?: string;
+  catalogue?: string;
 }
 
 export interface RelatedService {
