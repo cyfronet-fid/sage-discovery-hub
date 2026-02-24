@@ -14,6 +14,7 @@ async def config():
     return ConfigurationResponse(
         eu_marketplace_url=settings.EU_MARKETPLACE_BASE_URL,
         pl_marketplace_url=settings.PL_MARKETPLACE_BASE_URL,
+        psnc_dashboard_url=settings.PSNC_DASHBOARD_BASE_URL,
         eosc_explore_url=settings.EOSC_EXPLORE_URL,
         eosc_commons_url=settings.EOSC_COMMONS_URL,
         eosc_commons_env=settings.EOSC_COMMONS_ENV,
