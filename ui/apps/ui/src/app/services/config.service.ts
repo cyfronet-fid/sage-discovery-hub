@@ -9,6 +9,7 @@ import { EoscCommonWindow } from '@components/main-header/types';
 export interface BackendConfig {
   eu_marketplace_url: string;
   pl_marketplace_url: string;
+  psnc_dashboard_url: string;
   eosc_commons_url: string;
   eosc_commons_env: string;
   eosc_explore_url: string;
