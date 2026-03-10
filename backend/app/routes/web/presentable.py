@@ -1,6 +1,7 @@
 # pylint: disable=missing-function-docstring
 
 """Presentable items UI endpoint"""
+
 from typing import Optional
 
 from fastapi import APIRouter, Depends
