@@ -88,7 +88,7 @@ class GlobalSettings(BaseSettings):
     EU_MARKETPLACE_BASE_URL: Url = "https://userspace.sandbox.eosc-beyond.eu/"
     PL_MARKETPLACE_BASE_URL: Url = "https://marketplace.eosc.pl/"
     PSNC_DASHBOARD_BASE_URL: Url = (
-        "https://provider-dashboard-edc-connector.apps.bst2.paas.psnc.pl/"
+        "https://sage-public-dashboard-sage-data-space.apps.bst2.paas.psnc.pl/"
     )
 
     EOSC_COMMONS_URL: Url = (  # Without / at the end it doesn't work
