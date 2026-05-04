@@ -15,7 +15,7 @@ async def test_return_backend_config(app: FastAPI, client: AsyncClient) -> None:
         "eosc_commons_url": "https://s3.cloud.cyfronet.pl/eosc-pl-common/",
         "eu_marketplace_url": "https://userspace.sandbox.eosc-beyond.eu/",
         "pl_marketplace_url": "https://marketplace.eosc.pl/",
-        "psnc_dashboard_url": "https://provider-dashboard-edc-connector.apps.bst2.paas.psnc.pl/",
+        "psnc_dashboard_url": "https://sage-public-dashboard-sage-data-space.apps.bst2.paas.psnc.pl/",
         "eosc_explore_url": "https://explore.sandbox.eosc-beyond.eu/",
         "eosc_helpdesk_form_url": "https://helpdesk.sandbox.eosc-beyond.eu/assets/form/form.js",
         "helpdesk_target_id": 38,
