@@ -30,27 +30,18 @@ const plRedirectUrlAdapter = (
   >
 ) => {
   switch (type) {
-    case 'dataset':
-      return data?.id
-        ? `${ConfigService.config?.psnc_dashboard_url}offer/${data.id}?participantId=${data.catalogue}`
-        : '';
+    case 'dataset': {
+      if (!data?.id) return '';
 
-    case 'service':
-      return data?.slug
-        ? `${
-            ConfigService.config?.pl_marketplace_url
-          }/services/${encodeURIComponent(data.slug)}/offers`
-        : '';
+      const params = new URLSearchParams({
+        participantId: data.participant_id ?? '',
+        originator: data.originator ?? '',
+      });
 
-    case 'data source':
-      return data?.pid
-        ? `${
-            ConfigService.config?.pl_marketplace_url
-          }/services/${encodeURIComponent(data.pid)}/offers`
-        : '';
+      return `${ConfigService.config?.psnc_dashboard_url}offer/${data.id}?${params.toString()}`;
+    }
 
     default:
-      // Use the original redirectUrlAdapter for all other cases
       return redirectUrlAdapter(type, data);
   }
 };

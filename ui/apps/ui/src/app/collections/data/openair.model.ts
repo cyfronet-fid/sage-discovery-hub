@@ -32,6 +32,9 @@ export interface IOpenAIREResult {
   granularity: string;
   data_quality: string;
   catalogue: string;
+  participant_id: string;
+  originator: string;
+
 }
 
 export interface InstanceExportData {
