@@ -7,6 +7,8 @@ import {
 import { AccessRight } from '@collections/repositories/types';
 
 const REGEXP_SPECIAL_CHAR = /[-/]/g;
+const NON_EXACT_FUZZY_EDIT_DISTANCE = 1;
+const NON_EXACT_FUZZY_MIN_LENGTH = 8;
 
 export const sanitizeValue = (value: string): string =>
   value.replace(/[+\-&|!()"~*?:\\/]/g, (match) => `\\${match.split('')}`);
@@ -49,15 +51,15 @@ export const queryChanger = (q: string, exact: boolean): string => {
       const n = `${word}`.replace(REGEXP_SPECIAL_CHAR, ' ');
       const words = n.split(' ');
       words.forEach(function (el, index) {
-        if (el.length > 5 && !exact) {
-          words[index] = `${el}~1`;
+        if (el.length >= NON_EXACT_FUZZY_MIN_LENGTH && !exact) {
+          words[index] = `${el}~${NON_EXACT_FUZZY_EDIT_DISTANCE}`;
         } else {
           words[index] = `${el}`;
         }
       });
       return words.join(' ');
-    } else if (word.length > 5 && !exact) {
-      return `${word}~1`;
+    } else if (word.length >= NON_EXACT_FUZZY_MIN_LENGTH && !exact) {
+      return `${word}~${NON_EXACT_FUZZY_EDIT_DISTANCE}`;
     } else {
       return `${word}`.replace(REGEXP_SPECIAL_CHAR, ' ');
     }
@@ -83,15 +85,15 @@ export const queryChangerAdv = (q: string, exact: boolean): string => {
       const n = `${word}`.replace(REGEXP_SPECIAL_CHAR, ' ');
       const words = n.split(' ');
       words.forEach(function (el, index) {
-        if (el.length > 5 && !exact) {
-          words[index] = `${el}~1`;
+        if (el.length >= NON_EXACT_FUZZY_MIN_LENGTH && !exact) {
+          words[index] = `${el}~${NON_EXACT_FUZZY_EDIT_DISTANCE}`;
         } else {
           words[index] = `${el}`;
         }
       });
       return words.join(' ');
-    } else if (word.length > 5 && !exact) {
-      return `${word}~1`;
+    } else if (word.length >= NON_EXACT_FUZZY_MIN_LENGTH && !exact) {
+      return `${word}~${NON_EXACT_FUZZY_EDIT_DISTANCE}`;
     } else {
       return `${word}`.replace(REGEXP_SPECIAL_CHAR, ' ');
     }

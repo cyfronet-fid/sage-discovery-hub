@@ -28,6 +28,19 @@ from .utils import (
     parse_providers_filters,
 )
 
+NON_EXACT_MINIMUM_MATCH = "2<100% 5<90%"
+EXACT_MINIMUM_MATCH = "100%"
+NON_EXACT_QUERY_PHRASE_SLOP = "3"
+EXACT_QUERY_PHRASE_SLOP = "0"
+
+
+def _get_search_precision_params(exact: str) -> tuple[str, str]:
+    """Return Solr params that control how fuzzy a search may be."""
+    if exact == "true":
+        return EXACT_MINIMUM_MATCH, EXACT_QUERY_PHRASE_SLOP
+
+    return NON_EXACT_MINIMUM_MATCH, NON_EXACT_QUERY_PHRASE_SLOP
+
 
 async def search(
     client: AsyncClient,
@@ -63,11 +76,7 @@ async def search(
     q = q.replace(":", r"")
     if collection == Collection.ALL_COLLECTION and fq and "providers" in fq[0]:
         fq = parse_providers_filters(fq)
-    mm_param = "80%"
-    qs_param = "5"
-    if exact == "true":
-        mm_param = "100%"
-        qs_param = "0"
+    mm_param, qs_param = _get_search_precision_params(exact)
     solr_collection = _get_solr_collection(collection, scope)
     if collection == Collection.PROJECT and fq:
         fq = parse_project_filters(fq)
@@ -170,11 +179,7 @@ async def search_advanced(
     q = q.replace("=", r"")
     q = q.replace(":", r"")
 
-    mm_param = "80%"
-    qs_param = "5"
-    if exact == "true":
-        mm_param = "100%"
-        qs_param = "0"
+    mm_param, qs_param = _get_search_precision_params(exact)
     solr_collection = _get_solr_collection(collection, scope)
     if collection == Collection.PROJECT and fq:
         fq = parse_project_filters(fq)
@@ -263,9 +268,9 @@ async def _check_collection_sanity(client, collection, scope: Optional[str] = No
         "params": {
             "defType": "edismax",
             "lowercaseOperators": "false",
-            "mm": "80%",
+            "mm": NON_EXACT_MINIMUM_MATCH,
             "tie": "0.1",
-            "qs": "5",
+            "qs": NON_EXACT_QUERY_PHRASE_SLOP,
             "hl": "on",
             "hl.method": "fastVector",
             "q": "*",
