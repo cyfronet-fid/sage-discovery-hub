@@ -62,6 +62,14 @@ const appRoutes: Routes = [
       ),
   },
   {
+    path: 'idps',
+    pathMatch: 'full',
+    loadChildren: () =>
+      import('./pages/idp-list-page/idp-list-page.module').then(
+        (m) => m.IdpListPageModule
+      ),
+  },
+  {
     path: '**',
     pathMatch: 'full',
     redirectTo: 'error/404',

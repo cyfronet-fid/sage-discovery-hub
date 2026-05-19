@@ -141,6 +141,16 @@ export class ResultComponent implements OnInit {
 
   public collection: string = '';
 
+  get navigationUrl(): string | null {
+    return this.redirectService.internalUrl(
+      this.redirectUrl,
+      this.id,
+      this.type?.value || '',
+      '',
+      false
+    );
+  }
+
   public readonly RESOURCES_TO_SHOW_PIN_TO: string[] = [
     'software',
     'publication',

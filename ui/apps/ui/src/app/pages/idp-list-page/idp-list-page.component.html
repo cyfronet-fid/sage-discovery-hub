@@ -1,0 +1,71 @@
+<main class="idp-list-page">
+  <section class="idp-list-page__header">
+    <p class="idp-list-page__eyebrow">AAI</p>
+    <h1>Available Data Connectors</h1>
+    <p *ngIf="hasPendingNavigation" class="idp-list-page__subtitle">
+      Select a data connector to continue to the dataset you just opened.
+    </p>
+  </section>
+
+  <ng-container *ngIf="state$ | async as state">
+    <section
+      *ngIf="state.status === 'loading'"
+      class="idp-list-page__status"
+      aria-live="polite"
+    >
+      Loading data connectors...
+    </section>
+
+    <section *ngIf="state.status === 'error'" class="idp-list-page__status">
+      <h2>Data connectors are unavailable</h2>
+      <p>{{ state.message }}</p>
+    </section>
+
+    <section *ngIf="state.status === 'loaded'" class="idp-list-page__content">
+      <div class="idp-list-page__meta">
+        <span>{{ state.response.items.length }} active data connectors</span>
+        <span>{{ state.response.source.participant_registry_id }}</span>
+        <span *ngIf="state.response.source.filters['dataSpaceID']">
+          {{ state.response.source.filters['dataSpaceID'] }}
+        </span>
+        <span *ngIf="state.response.source.filters['tags']">
+          {{ state.response.source.filters['tags'] }}
+        </span>
+      </div>
+
+      <section *ngIf="selectionError" class="idp-list-page__status">
+        <h2>Could not save connector selection</h2>
+        <p>{{ selectionError }}</p>
+      </section>
+
+      <div
+        *ngIf="state.response.items.length === 0"
+        class="idp-list-page__status"
+      >
+        No active data connectors found.
+      </div>
+
+      <ul *ngIf="state.response.items.length > 0" class="idp-list-page__list">
+        <li
+          *ngFor="let connector of state.response.items"
+          class="idp-list-page__item"
+          [class.idp-list-page__item--pending]="selectingPartyId === connector.party_id"
+          [attr.aria-busy]="selectingPartyId === connector.party_id"
+          tabindex="0"
+          role="button"
+          (click)="selectConnector(connector)"
+          (keyup.enter)="selectConnector(connector)"
+          (keyup.space)="selectConnector(connector)"
+        >
+          <div>
+            <h2>{{ connector.name || connector.party_id }}</h2>
+            <p>{{ connector.party_id }}</p>
+          </div>
+          <div class="idp-list-page__item-meta">
+            <span *ngFor="let role of connector.ishare_roles">{{ role }}</span>
+          </div>
+        </li>
+      </ul>
+    </section>
+  </ng-container>
+</main>
