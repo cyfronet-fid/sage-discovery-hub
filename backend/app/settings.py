@@ -69,6 +69,35 @@ class GlobalSettings(BaseSettings):
     OIDC_USERINFO_ENDPOINT: str = "/oidc/userinfo"
     OIDC_JWKS_ENDPOINT: str = "/oidc/jwk"
 
+    # - iSHARE Participant Registry / AAI IDP discovery
+    ISHARE_PR_PARTICIPANT_REGISTRY_ID: str = "did:ishare:EU.NL.NTRPL-12345678"
+    ISHARE_PR_BASE_URL: Url = "https://pr-middleware.62.3.175.232.nip.io"
+    ISHARE_PR_VERSION: str = "2.1.1"
+    ISHARE_CLIENT_ID: Optional[str] = None
+    ISHARE_CLIENT_ASSERTION_ISS: Optional[str] = None
+    ISHARE_CLIENT_ASSERTION_SUB: Optional[str] = None
+    ISHARE_PR_AUDIENCE: Optional[str] = None
+    ISHARE_PRIVATE_KEY_PATH: Optional[str] = "test"
+    ISHARE_CERTIFICATE_CHAIN_PATH: Optional[str] = None
+    ISHARE_IDP_ROLE_PARAM: str = "role"
+    ISHARE_IDP_ROLE_VALUE: str = "ServiceProvider"
+    ISHARE_CONNECTOR_DATASPACE_ID: str = "EU.DS.GND.SAGE"
+
+    ISHARE_CONNECTOR_TAG: str = "connector"
+    ISHARE_CONNECTOR_REGISTRAR_ID: Optional[str] = None
+    ISHARE_CONNECTOR_ACTIVE_ONLY: bool = True
+    ISHARE_IDP_ACTIVE_ONLY: bool = True
+    ISHARE_ASSOCIATED_IDP_IDENTIFIER: str = "associated-idp"
+    ISHARE_AUTHORIZE_SCOPE: str = "openid iSHARE"
+    ISHARE_AUTHORIZE_ACR_VALUES: str = "urn:http://eidas.europa.eu/LoA/NotNotified/low"
+    ISHARE_CAPABILITIES_TIMEOUT_SECONDS: float = 15.0
+    ISHARE_CONNECTOR_CAPABILITY_URL_OVERRIDES: dict[str, str] = {}
+    ISHARE_CONNECTOR_DASHBOARD_URL_OVERRIDES: dict[str, str] = {}
+    ISHARE_IDP_CAPABILITY_URL_OVERRIDES: dict[str, str] = {}
+    ISHARE_IDP_AUTHORIZE_URL_OVERRIDES: dict[str, str] = {}
+    ISHARE_IDP_TOKEN_URL_OVERRIDES: dict[str, str] = {}
+    ISHARE_PR_TIMEOUT_SECONDS: float = 15.0
+
     # - Sentry
     SENTRY_DSN: Optional[str] = None
 
