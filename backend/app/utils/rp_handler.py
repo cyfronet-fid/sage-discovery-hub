@@ -61,10 +61,12 @@ def _get_key_jar(config):
     return key_jar
 
 
-rp_handler = RPHandler(
-    base_url=OIDC_CONFIG["base_url"],
-    client_configs=OIDC_CONFIG["clients"],
-    services=OIDC_CONFIG["services"],
-    keyjar=_get_key_jar(OIDC_JWT_ENCRYPT_CONFIG),
-    httpc_params=OIDC_CONFIG["httpc_params"],
-)
+@cached(TTLCache(maxsize=1, ttl=64800))
+def get_rp_handler() -> RPHandler:
+    return RPHandler(
+        base_url=OIDC_CONFIG["base_url"],
+        client_configs=OIDC_CONFIG["clients"],
+        services=OIDC_CONFIG["services"],
+        keyjar=_get_key_jar(OIDC_JWT_ENCRYPT_CONFIG),
+        httpc_params=OIDC_CONFIG["httpc_params"],
+    )

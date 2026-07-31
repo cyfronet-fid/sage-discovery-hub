@@ -53,7 +53,7 @@
             [ngClass]="{ padding_for_provider: this.isSpecialCollection }"
             [title]="title"
             [highlight]="highlightsreal['title'] ?? []"
-            [url]="redirectUrl"
+            [url]="navigationUrl"
           >
           </ess-url-title>
           <ess-url-title
@@ -61,7 +61,7 @@
             [ngClass]="{ sub_title: this.isSpecialCollection }"
             [title]="abbreviation"
             [highlight]="highlightsreal['abbreviation'] ?? []"
-            [url]="redirectUrl"
+            [url]="navigationUrl"
             style="margin-bottom: -10px"
           >
           </ess-url-title>
@@ -76,7 +76,7 @@
             [ngClass]="{ padding_for_provider: type.value === 'provider' }"
             [title]="title"
             [highlight]="highlightsreal['title'] ?? []"
-            [url]="redirectUrl"
+            [url]="navigationUrl"
           >
           </ess-url-title>
         </div>
@@ -300,7 +300,7 @@
 
     <a
       class="btn btn-primary"
-      [href]="redirectUrl"
+      [href]="navigationUrl"
       target="_self"
       rel="noopener"
     >

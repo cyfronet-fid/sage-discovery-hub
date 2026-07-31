@@ -64,25 +64,40 @@ async def register_navigation_user_action(
 
     target_id = uuid.uuid4()
 
+    should_attach_cookie = False
     try:
-        cookie(request)
+        session_id = cookie(request)
         session = await verifier(request)
-
-        response = await _create_redirect_response(
-            return_path, search_params, session.session_uuid, str(target_id), url
-        )
     except HTTPException:
-        cookie_session_id = uuid.uuid4()
+        session_id = uuid.uuid4()
         new_session_uuid = uuid.uuid4()
         session = SessionData(
             username=None, aai_state=None, aai_id="", session_uuid=str(new_session_uuid)
         )
-        await backend.create(cookie_session_id, session)
+        await backend.create(session_id, session)
+        should_attach_cookie = True
 
-        response = await _create_redirect_response(
-            return_path, search_params, str(new_session_uuid), str(target_id), url
-        )
-        cookie.attach_to_response(response, cookie_session_id)
+    if resource_type == "dataset":
+        if not session.selected_connector_dashboard_url:
+            session.pending_dataset_resource_id = resource_id
+            session.pending_dataset_url = url
+            session.pending_dataset_navigation_url = _relative_request_url(request)
+            await backend.update(session_id, session)
+            response = await _create_connector_selection_redirect(request)
+            if should_attach_cookie:
+                cookie.attach_to_response(response, session_id)
+            return response
+        url = _dataset_dashboard_url(url, session.selected_connector_dashboard_url)
+        session.pending_dataset_resource_id = None
+        session.pending_dataset_url = None
+        session.pending_dataset_navigation_url = None
+        await backend.update(session_id, session)
+
+    response = await _create_redirect_response(
+        return_path, search_params, session.session_uuid, str(target_id), url
+    )
+    if should_attach_cookie:
+        cookie.attach_to_response(response, session_id)
 
     if not client:
         logger.debug("No mqtt client, user action not sent")
@@ -110,12 +125,12 @@ async def register_navigation_user_action(
 async def _create_redirect_response(
     return_path: str, search_params: str, client_uid: str, target_id: str, url: str
 ):
-    id_params = ["?id", "?projectId", "?organizationId"]
+    separator = "&" if urllib.parse.urlparse(url).query else "?"
     redirect_response = RedirectResponse(
         status_code=303,
         url=(
             url
-            + ("&" if any(id_param in url for id_param in id_params) else "?")
+            + separator
             + "return_path="
             + return_path
             + "&search_params="
@@ -127,3 +142,34 @@ async def _create_redirect_response(
         ),
     )
     return redirect_response
+
+
+async def _create_connector_selection_redirect(request: Request) -> RedirectResponse:
+    next_url = urllib.parse.quote(_relative_request_url(request), safe="")
+    return RedirectResponse(
+        status_code=303,
+        url=f"{settings.UI_BASE_URL}idps?next={next_url}",
+    )
+
+
+def _relative_request_url(request: Request) -> str:
+    query = request.url.query
+    return f"{request.url.path}?{query}" if query else request.url.path
+
+
+def _dataset_dashboard_url(url: str, dashboard_url: str) -> str:
+    parsed_original = urllib.parse.urlparse(url)
+    parsed_dashboard = urllib.parse.urlparse(dashboard_url)
+    base_path = parsed_dashboard.path.rstrip("/")
+    original_path = parsed_original.path.lstrip("/")
+    combined_path = f"{base_path}/{original_path}" if base_path else f"/{original_path}"
+    return urllib.parse.urlunparse(
+        (
+            parsed_dashboard.scheme,
+            parsed_dashboard.netloc,
+            combined_path,
+            "",
+            parsed_original.query,
+            "",
+        )
+    )

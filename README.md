@@ -20,6 +20,7 @@
       - [Recommender System](#recommender-system)
       - [STOMP](#stomp)
       - [OIDC](#oidc)
+      - [iSHARE AAI Connector Discovery](#ishare-aai-connector-discovery)
       - [Other](#other)
     - [Redirections](#redirections)
   - [DB env variables](#db-envs)
@@ -171,6 +172,52 @@ See docker-compose.yml for components.
 - `OIDC_CLIENT_ID`: `str = "NO_CLIENT_ID"` - The service ID stored in AAI for auth purposes.
 - `OIDC_CLIENT_SECRET`: `str = "NO_CLIENT_SECRET"` - Private key of the service needed in AAI auth process.
 - `OIDC_AAI_NEW_API`: `bool = False` - A param switching between new kind of endpoints and old one (AAI changed endpoints between instances)
+
+##### iSHARE AAI Connector Discovery
+The application can discover data connectors from an iSHARE Participant Registry and store the user's chosen connector in the existing server-side session referenced by the auth cookie. The selected connector is later used when the user opens a dataset and needs to be redirected to the chosen connector dashboard.
+
+Required variables for the current iSHARE connector flow:
+
+- `ISHARE_CLIENT_ID` - iSHARE client identifier used as `client_id`.
+- `ISHARE_CLIENT_ASSERTION_ISS` - JWT client assertion `iss` claim.
+- `ISHARE_CLIENT_ASSERTION_SUB` - JWT client assertion `sub` claim.
+- `ISHARE_PR_AUDIENCE` - JWT client assertion `aud` claim and expected JWT issuer for PR responses on the current middleware instance.
+- `ISHARE_PRIVATE_KEY_PATH` - absolute path to the PEM private key used to sign the client assertion.
+- `ISHARE_CERTIFICATE_CHAIN_PATH` - absolute path to the full PEM certificate chain; the whole chain is sent in the JWT `x5c` header.
+- `ISHARE_PR_PARTICIPANT_REGISTRY_ID` - logical PR participant identifier returned in the connector discovery response metadata.
+- `ISHARE_PR_BASE_URL` - base URL of the Participant Registry middleware.
+- `ISHARE_PR_VERSION` - PR API version used for versioned endpoints such as `parties`.
+- `ISHARE_CONNECTOR_DATASPACE_ID` - dataspace filter applied to Service Providers.
+- `ISHARE_CONNECTOR_TAG` - tag filter applied to Service Providers. For the current setup this is `connector`.
+- `ISHARE_CONNECTOR_REGISTRAR_ID` - registrar satellite filter applied to Service Providers. For the current setup this is `did:ishare:EU.NL.NTRPL-12345678`.
+- `ISHARE_CONNECTOR_ACTIVE_ONLY` - when `true`, only active connectors are returned.
+- `ISHARE_CONNECTOR_CAPABILITY_URL_OVERRIDES` - optional JSON object mapping `party_id -> capability URL` when PR does not publish `capability_url`.
+- `ISHARE_CONNECTOR_DASHBOARD_URL_OVERRIDES` - JSON object mapping `party_id -> dashboard base URL`. This is required for dataset redirects because the PR records currently do not expose dashboard URLs.
+
+Additional optional variables used by the older connector-to-IDP login flow remain supported in the backend:
+
+- `ISHARE_ASSOCIATED_IDP_IDENTIFIER`
+- `ISHARE_AUTHORIZE_SCOPE`
+- `ISHARE_AUTHORIZE_ACR_VALUES`
+- `ISHARE_IDP_CAPABILITY_URL_OVERRIDES`
+- `ISHARE_IDP_AUTHORIZE_URL_OVERRIDES`
+- `ISHARE_IDP_TOKEN_URL_OVERRIDES`
+
+Current active connector filters:
+
+- `role=ServiceProvider`
+- `dataSpaceID=EU.DS.GND.SAGE`
+- `tags=connector`
+- `registarSatelliteID=did:ishare:EU.NL.NTRPL-12345678`
+- `active_only=true`
+
+Important implementation notes for the current PR middleware instance:
+
+- Token acquisition falls back to the unversioned `/connect/token` endpoint when the versioned endpoint is missing.
+- Connector discovery falls back to the unversioned `/parties` endpoint when the versioned endpoint returns middleware errors.
+- The connector choice is stored in the server-side session and not in browser local storage.
+- Clicking a connector no longer starts an authentication redirect. The UI stores the selected connector and redirects the user to `/search`.
+- If the user opens a dataset before choosing a connector, the backend redirects the user to `/idps?next=...`. After the connector is selected, the saved `next` navigation is resumed and the dataset URL is rewritten to the selected connector dashboard base URL.
 
 ##### Sentry
 - `SENTRY_DSN`: endpoint for Sentry logged errors. For development leave this variable unset.
