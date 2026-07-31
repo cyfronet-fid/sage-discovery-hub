@@ -70,9 +70,9 @@ class GlobalSettings(BaseSettings):
     OIDC_JWKS_ENDPOINT: str = "/oidc/jwk"
 
     # - iSHARE Participant Registry / AAI IDP discovery
-    ISHARE_PR_PARTICIPANT_REGISTRY_ID: str = "EU.EORI.PL12345678"
+    ISHARE_PR_PARTICIPANT_REGISTRY_ID: str = "did:ishare:EU.NL.NTRPL-12345678"
     ISHARE_PR_BASE_URL: Url = "https://pr-middleware.62.3.175.232.nip.io"
-    ISHARE_PR_VERSION: str = "v2.0.1"
+    ISHARE_PR_VERSION: str = "2.1.1"
     ISHARE_CLIENT_ID: Optional[str] = None
     ISHARE_CLIENT_ASSERTION_ISS: Optional[str] = None
     ISHARE_CLIENT_ASSERTION_SUB: Optional[str] = None
