@@ -52,6 +52,16 @@ class FakeIShareParticipantRegistryClient:
             ),
         )
 
+    async def get_connector_details(self, party_id):
+        connector_list = await self.get_connector_list()
+        connector = next(
+            (item for item in connector_list.items if item.party_id == party_id),
+            None,
+        )
+        if connector is None:
+            raise ValueError(f"Unknown connector {party_id}")
+        return connector
+
 
 def dataset_navigation_params(resource_id: str = "dataset-1") -> dict[str, str]:
     return {

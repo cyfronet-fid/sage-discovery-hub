@@ -1,5 +1,6 @@
 """Client utilities for iSHARE Participant Registry discovery and login routing."""
 
+import asyncio
 import base64
 import json
 import re
@@ -46,7 +47,9 @@ class IShareParticipantRegistryClient:
         self._base_url = str(settings.ISHARE_PR_BASE_URL)
         self._version = settings.ISHARE_PR_VERSION.strip("/")
 
-    async def get_connector_list(self) -> PartyListResponse:
+    async def get_connector_list(
+        self, include_details: bool = True
+    ) -> PartyListResponse:
         """Return validated data connectors for the configured Sage data space."""
 
         response = await self.get_party_list(
@@ -58,8 +61,35 @@ class IShareParticipantRegistryClient:
             capability_url_overrides=self._settings.ISHARE_CONNECTOR_CAPABILITY_URL_OVERRIDES,
             dashboard_url_overrides=self._settings.ISHARE_CONNECTOR_DASHBOARD_URL_OVERRIDES,
         )
-        await self._enrich_connector_items(response.items)
+        if self._settings.ISHARE_CONNECTOR_ACTIVE_ONLY:
+            await self._refresh_connector_items_from_party_records(response.items)
+        if include_details:
+            await self._enrich_connector_items(response.items)
         return response
+
+    async def get_connector_details(self, party_id: str) -> PartyListItem:
+        """Return one validated connector enriched with capabilities metadata."""
+
+        party = await self.get_party_record(party_id)
+        item = self._to_party_list_item(
+            party,
+            role="ServiceProvider",
+            data_space_id=self._settings.ISHARE_CONNECTOR_DATASPACE_ID,
+            tag=self._settings.ISHARE_CONNECTOR_TAG,
+            registrar_id=self._settings.ISHARE_CONNECTOR_REGISTRAR_ID,
+            capability_url_overrides=(
+                self._settings.ISHARE_CONNECTOR_CAPABILITY_URL_OVERRIDES
+            ),
+            dashboard_url_overrides=(
+                self._settings.ISHARE_CONNECTOR_DASHBOARD_URL_OVERRIDES
+            ),
+        )
+        if item is None:
+            raise IShareParticipantRegistryError(
+                f"Connector {party_id} is not in the validated EDC connector list"
+            )
+        await self._enrich_connector_items([item])
+        return item
 
     async def get_identity_provider_list(self) -> PartyListResponse:
         """Return active identity providers."""
@@ -771,19 +801,51 @@ class IShareParticipantRegistryClient:
         )
 
     async def _enrich_connector_items(self, items: list[PartyListItem]) -> None:
-        for item in items:
-            if not item.capability_url:
-                continue
-            try:
-                capabilities = await self.get_capabilities(
-                    item.capability_url, expected_issuer=item.party_id
-                )
-            except IShareParticipantRegistryError:
-                continue
-            item.ishare_roles = self.extract_ishare_roles(capabilities)
-            item.dashboard_url = item.dashboard_url or self.resolve_service_endpoint(
-                capabilities, "dashboard"
+        await asyncio.gather(
+            *(self._enrich_connector_item(item) for item in items if item.capability_url)
+        )
+
+    async def _enrich_connector_item(self, item: PartyListItem) -> None:
+        try:
+            capabilities = await self.get_capabilities(
+                item.capability_url, expected_issuer=item.party_id
             )
+        except IShareParticipantRegistryError:
+            return
+        item.ishare_roles = self.extract_ishare_roles(capabilities)
+        item.dashboard_url = item.dashboard_url or self.resolve_service_endpoint(
+            capabilities, "dashboard"
+        )
+
+    async def _refresh_connector_items_from_party_records(
+        self, items: list[PartyListItem]
+    ) -> None:
+        refreshed_items = await asyncio.gather(
+            *(self._refresh_connector_item_from_party_record(item) for item in items)
+        )
+        items[:] = [item for item in refreshed_items if item is not None]
+
+    async def _refresh_connector_item_from_party_record(
+        self, item: PartyListItem
+    ) -> Optional[PartyListItem]:
+        try:
+            party = await self.get_party_record(item.party_id)
+        except IShareParticipantRegistryError:
+            return item
+
+        return self._to_party_list_item(
+            party,
+            role=item.role,
+            data_space_id=self._settings.ISHARE_CONNECTOR_DATASPACE_ID,
+            tag=self._settings.ISHARE_CONNECTOR_TAG,
+            registrar_id=self._settings.ISHARE_CONNECTOR_REGISTRAR_ID,
+            capability_url_overrides=(
+                self._settings.ISHARE_CONNECTOR_CAPABILITY_URL_OVERRIDES
+            ),
+            dashboard_url_overrides=(
+                self._settings.ISHARE_CONNECTOR_DASHBOARD_URL_OVERRIDES
+            ),
+        )
 
     @staticmethod
     def _supported_feature_entries(

@@ -18,7 +18,7 @@ from app.schemas.connector_selection import (
     ConnectorSelectionResponse,
     ConnectorSelectionStatusResponse,
 )
-from app.schemas.party_registry import PartyListResponse
+from app.schemas.party_registry import PartyListItem, PartyListResponse
 from app.schemas.session_data import SessionData
 from app.schemas.user_info_response import UserInfoResponse
 from app.settings import settings
@@ -35,13 +35,31 @@ connector_login_cache = TTLCache(maxsize=100, ttl=600)
 
 
 @router.get("/connectors", name="web:auth-connectors", response_model=PartyListResponse)
-async def auth_connectors():
+async def auth_connectors(include_details: bool = True):
     try:
-        return await IShareParticipantRegistryClient(settings).get_connector_list()
+        return await IShareParticipantRegistryClient(settings).get_connector_list(
+            include_details=include_details
+        )
     except IShareConfigurationError as err:
         raise HTTPException(status_code=503, detail=str(err)) from err
     except IShareParticipantRegistryError as err:
         raise HTTPException(status_code=502, detail=str(err)) from err
+
+
+@router.get(
+    "/connectors/{party_id}/details",
+    name="web:auth-connector-details",
+    response_model=PartyListItem,
+)
+async def auth_connector_details(party_id: str):
+    try:
+        return await IShareParticipantRegistryClient(settings).get_connector_details(
+            party_id
+        )
+    except IShareConfigurationError as err:
+        raise HTTPException(status_code=503, detail=str(err)) from err
+    except IShareParticipantRegistryError as err:
+        raise HTTPException(status_code=404, detail=str(err)) from err
 
 
 @router.get(
@@ -94,18 +112,7 @@ async def select_connector(
 ):
     client = IShareParticipantRegistryClient(settings)
     try:
-        connector_list = await client.get_connector_list()
-        connector = next(
-            (item for item in connector_list.items if item.party_id == payload.party_id),
-            None,
-        )
-        if connector is None:
-            raise HTTPException(
-                status_code=404,
-                detail=(
-                    f"Connector {payload.party_id} is not in the validated EDC connector list"
-                ),
-            )
+        connector = await client.get_connector_details(payload.party_id)
         if not connector.dashboard_url:
             raise HTTPException(
                 status_code=409,
@@ -145,15 +152,7 @@ async def select_connector(
 async def connector_login_request(party_id: str):
     client = IShareParticipantRegistryClient(settings)
     try:
-        connector_list = await client.get_connector_list()
-        connector = next(
-            (item for item in connector_list.items if item.party_id == party_id), None
-        )
-        if connector is None:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Connector {party_id} is not in the validated EDC connector list",
-            )
+        connector = await client.get_connector_details(party_id)
         if not connector.capability_url:
             raise HTTPException(
                 status_code=409,
