@@ -1,5 +1,6 @@
 from app.settings import settings
 from app.utils.ishare_pr_client import IShareParticipantRegistryClient
+from app.schemas.party_registry import PartyListItem
 
 
 def test_extract_party_list_from_v211_parties_info_payload():
@@ -56,6 +57,42 @@ def test_exclude_inactive_party_from_idp_list():
         )
         is None
     )
+
+
+async def test_refresh_connector_items_excludes_revoked_full_party_record(monkeypatch):
+    client = IShareParticipantRegistryClient(settings)
+    items = [
+        PartyListItem(
+            party_id="EU.EORI.EE47058509",
+            name="Reverse Resources OU",
+            role="ServiceProvider",
+            status="Active",
+            capability_url="https://connector.example/capabilities",
+            data_space_id=settings.ISHARE_CONNECTOR_DATASPACE_ID,
+            tag=settings.ISHARE_CONNECTOR_TAG,
+        )
+    ]
+
+    async def fake_get_party_record(party_id):
+        assert party_id == "EU.EORI.EE47058509"
+        return {
+            "party_id": "EU.EORI.EE47058509",
+            "party_name": "Reverse Resources OU",
+            "capability_url": "https://connector.example/capabilities",
+            "adherence": {"status": "Revoked"},
+            "agreements": [
+                {"dataspace_id": settings.ISHARE_CONNECTOR_DATASPACE_ID}
+            ],
+            "additional_info": {"tags": settings.ISHARE_CONNECTOR_TAG},
+            "registrar_id": settings.ISHARE_CONNECTOR_REGISTRAR_ID,
+            "roles": [{"role": "ServiceProvider"}],
+        }
+
+    monkeypatch.setattr(client, "get_party_record", fake_get_party_record)
+
+    await client._refresh_connector_items_from_party_records(items)
+
+    assert items == []
 
 
 def test_extract_associated_idp_party_id_from_capabilities():

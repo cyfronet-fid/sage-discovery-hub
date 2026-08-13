@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '@environment/environment';
 import {
   ConnectorSelectionResponse,
+  IdpListItem,
   IdpListResponse,
 } from './idp-list.types';
 
@@ -13,9 +14,22 @@ import {
 export class IdpListService {
   constructor(private _http: HttpClient) {}
 
-  get$(): Observable<IdpListResponse> {
+  get$(includeDetails = true): Observable<IdpListResponse> {
     return this._http.get<IdpListResponse>(
-      `${environment.backendApiPath}/auth/connectors`
+      `${environment.backendApiPath}/auth/connectors`,
+      {
+        params: {
+          include_details: String(includeDetails),
+        },
+      }
+    );
+  }
+
+  details$(partyId: string): Observable<IdpListItem> {
+    return this._http.get<IdpListItem>(
+      `${environment.backendApiPath}/auth/connectors/${encodeURIComponent(
+        partyId
+      )}/details`
     );
   }
 

@@ -47,11 +47,13 @@
 
       <ul *ngIf="state.response.items.length > 0" class="idp-list-page__list">
         <li
-          *ngFor="let connector of state.response.items"
+          *ngFor="let connector of getSortedConnectors(state.response.items)"
           class="idp-list-page__item"
           [class.idp-list-page__item--pending]="selectingPartyId === connector.party_id"
+          [class.idp-list-page__item--unavailable]="isConnectorUnavailable(connector)"
           [attr.aria-busy]="selectingPartyId === connector.party_id"
-          tabindex="0"
+          [attr.aria-disabled]="isConnectorUnavailable(connector)"
+          [attr.tabindex]="isConnectorUnavailable(connector) ? -1 : 0"
           role="button"
           (click)="selectConnector(connector)"
           (keyup.enter)="selectConnector(connector)"
@@ -62,7 +64,24 @@
             <p>{{ connector.party_id }}</p>
           </div>
           <div class="idp-list-page__item-meta">
-            <span *ngFor="let role of connector.ishare_roles">{{ role }}</span>
+            <ng-container *ngIf="getConnector(connector) as connectorDetails">
+              <span *ngFor="let role of connectorDetails.ishare_roles">{{
+                role
+              }}</span>
+            </ng-container>
+            <span
+              *ngIf="isLoadingDetails(connector)"
+              class="idp-list-page__detail-loader"
+              aria-live="polite"
+            >
+              Loading details...
+            </span>
+            <span
+              *ngIf="areDetailsUnavailable(connector)"
+              class="idp-list-page__detail-warning"
+            >
+              Currently unavailable
+            </span>
           </div>
         </li>
       </ul>
